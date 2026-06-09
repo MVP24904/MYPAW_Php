@@ -5,9 +5,23 @@ class Modelo {
     private $pdo;
 
     public function __CONSTRUCT() {
-        try {
+       /* try {
             $opciones = array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4");
             $this->pdo = new PDO('mysql:host=mysql.railway.internal;port=3306;dbname=railway', 'root', 'GrrhwMEzCtHgGXUUutBCYSpxeVckJbxn', $opciones);
+            $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        } catch (Exception $e) {
+        */
+
+        try {
+            $host   = 'mysql.railway.internal';
+            $port   = '3306'; 
+            $dbname = 'railway'; 
+            $user   = 'root';
+            $pass   = 'GrrhwMEzCtHgGXUUutBCYSpxeVckJbxn'; 
+
+            $dsn = "mysql:host={$host};port={$port};dbname={$dbname};charset=utf8mb4";
+
+            $this->pdo = new PDO($dsn, $user, $pass);
             $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (Exception $e) {
             die($e->getMessage());
@@ -24,7 +38,6 @@ class Modelo {
 
     public function ListarAnimales() {
         try {
-            // Calculamos los días en espera directamente en SQL
             $sc = "SELECT id_animal, nombre, tipo, edad, tamano, foto, descripcion,
                           disponibilidad, fecha_registro, entidad,
                           DATEDIFF(CURRENT_DATE, fecha_registro) AS dias_espera
@@ -112,7 +125,6 @@ class Modelo {
 
     public function ListarSolicitudes() {
         try {
-            // JOIN para obtener nombre de usuario y animal en el mismo resultado
             $sc = "SELECT s.id_solicitud, s.id_usuario, s.id_animal,
                           s.descripcion, s.fecha_envio, s.estado,
                           u.nombre AS nombreUsuario, u.email, u.telefono,
@@ -298,7 +310,6 @@ class Modelo {
 
     public function AnadeSolicitud($data) {
         try {
-            // Si viene con email en lugar de id_usuario, intentamos crear/recuperar el usuario
             if (!isset($data->id_usuario) && isset($data->email)) {
                 $usuario = $this->ObtenerUsuarioEmail($data->email);
                 if (!$usuario) {
@@ -372,8 +383,6 @@ class Modelo {
 
     public function BorraAnimal($id) {
         try {
-            // Las FK tienen ON DELETE CASCADE, pero lo hacemos en transacción
-            // por si alguien quita el CASCADE en el futuro
             $this->pdo->beginTransaction();
 
             $this->pdo->prepare("DELETE FROM solicitudes WHERE id_animal = ?")->execute(array($id));
@@ -463,7 +472,6 @@ class Modelo {
 
     public function ModificaEstadoSolicitud($data) {
         try {
-            // Si se aprueba, marcamos el animal como no disponible (en transacción)
             $this->pdo->beginTransaction();
 
             $sql = "UPDATE solicitudes SET estado = ? WHERE id_solicitud = ?";
@@ -527,7 +535,7 @@ class Modelo {
     }
 
 
-}  // class Modelo
+}  
 
 
 ?>

@@ -7,7 +7,6 @@ header('Access-Control-Allow-Methods: GET, POST');
 require_once 'modelo.php';
 $modelo = new Modelo();
 
-// Recogemos los datos JSON enviados por el cliente Angular (HttpClient)
 $datos  = file_get_contents('php://input');
 $objeto = json_decode($datos);
 
@@ -175,6 +174,6 @@ if ($objeto != null) {
             break;
 
 
-    }  // switch($objeto->accion)
-}  // if($objeto != null)
+    }  
+}  
 ?>
